@@ -1,14 +1,4 @@
 <!DOCTYPE html>
-<html lang="en" >
-<head>
-  <meta charset="UTF-8">
-  <title>Untitled</title>
-  
-
-</head>
-<body>
-<!-- partial:index.partial.html -->
-<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -60,7 +50,7 @@
       width:var(--app-w);max-width:100%;
       background:var(--bg-base);color:#E1E3E8;
       border:none;border-radius:0;overflow:visible;position:relative;
-      padding:12px var(--frame-gutter-x) 80px;
+      padding:12px var(--frame-gutter-x) 80px; /* bottom space for fixed nav */
       font-family:"Segoe UI",Roboto,sans-serif
     }
     .amount,.value,.rate{font-family:"Binance PLEX",sans-serif!important}
@@ -184,7 +174,7 @@
     .tp-btn{flex:1;background:var(--btn-bg);color:#fff;border:none;border-radius:6px;padding:6px 0;font-size:12px;cursor:pointer;transition:background .3s}
     .tp-btn:hover{background:var(--secondary-bg)}
 
-    /* ===== Bottom nav ===== */
+    /* ===== Bottom nav (flush to device bottom) ===== */
     .bottom-nav{
       position:fixed;bottom:0;left:50%;transform:translateX(-50%);
       width:var(--app-w);background:#2A2F3A;display:flex;padding:8px 0;
@@ -226,16 +216,19 @@
       position:absolute; inset:0; background:transparent;
     }
 
-    /* ===================== PNL SHARE MODAL (ADDED) ===================== */
+    /* ===================== PNL SHARE MODAL (BOTTOM-ANCHORED) ===================== */
     .pnl-modal-backdrop{
       position:fixed; inset:0; background:rgba(0,0,0,.6);
-      display:none; align-items:center; justify-content:center; z-index:1000;
-      padding:24px;
+      display:none; justify-content:center; /* center horizontally */
+      align-items:flex-end;                 /* >>> anchor content to screen bottom */
+      z-index:1000;
+      padding:0 24px 16px;                  /* bottom breathing room */
     }
     .pnl-modal-backdrop.open{ display:flex; }
     .pnl-modal{
       position:relative; max-width:520px; width:100%;
       outline:0; border:0; background:transparent;
+      margin:0 auto;                        /* stick to bottom via parent flex-end */
     }
     .pnl-close{
       position:absolute; top:-12px; right:-12px; width:32px; height:32px; border-radius:50%;
@@ -243,13 +236,13 @@
       cursor:pointer; z-index:2;
     }
 
-    /* >>> NEW: light-ash scene around the card (matches uploaded photo) */
+    /* Light-ash scene around the card (matches uploaded photo) */
     .pnl-scene{
       background:#2f343d;           /* light ash */
       border:1px solid #3a3f49;
       border-radius:18px;
-      padding:12px 12px 16px;       /* small top space and room below */
-      margin:8px auto 0;            /* little down from top */
+      padding:12px 12px 16px;
+      margin:0 auto;                /* >>> no extra top margin; sits at bottom */
       width:calc(350px + 1.2cm);    /* show left/right ash area outside card */
       display:flex;
       flex-direction:column;
@@ -309,7 +302,6 @@
       display:flex; flex-direction:column; align-items:flex-start;
       font-size:13px;
     }
-    /* >>> moved ~1.5cm to the right */
     .pnl-underbar .selector {
       margin:6px 0 10px;
       display:flex; justify-content:flex-start; gap:20px; font-size:13px;
@@ -317,7 +309,13 @@
     }
     .pnl-underbar .selector label { display:flex; align-items:center; gap:5px; cursor:pointer; }
     .pnl-underbar .selector input[type="radio"] { accent-color:white; }
-    .pnl-underbar .bottom-bar { display:flex; justify-content:center; gap:10px; margin-top:8px; transform:translateX(-1.2cm); align-self:center; }
+
+    /* >>> stretch actions bar so it sits flush across width near bottom */
+    .pnl-underbar .bottom-bar {
+      display:flex; justify-content:space-between; gap:10px;
+      margin-top:8px; align-self:stretch; width:100%;
+      transform:none; /* no horizontal offset */
+    }
     .pnl-underbar .action {
       width:45px; height:45px; background:#1b1c22; border:1px solid #2e2f37; border-radius:12px;
       display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
@@ -326,7 +324,7 @@
     .pnl-underbar .action:hover { transform:translateY(-2px); background:#242632; border-color:#3a3b47; }
     .pnl-underbar .action img { width:18px; height:18px; display:block; }
     .pnl-underbar .action span { font-size:10px; color:#cfd3dc; }
-    /* =================== / PNL SHARE MODAL (ADDED) =================== */
+    /* =================== / PNL SHARE MODAL =================== */
   </style>
 </head>
 <body>
@@ -359,7 +357,7 @@
       <div class="balance-header">
         <span>Margin Balance <i id="eyeToggle" class="fas fa-eye" aria-hidden="true"></i></span>
 
-        <!-- >>> three photo slots (no frame) -->
+        <!-- three photo slots -->
         <span class="icon-group" aria-label="Actions">
           <label class="photo-slot photo-empty" data-slot="top-reward">
             <input type="file" accept=".jpg,.jpeg,image/jpeg" capture="environment">
@@ -421,7 +419,7 @@
       </div>
     </section>
 
-    <!-- ===== Bottom nav: icons replaced by upload slots ===== -->
+    <!-- ===== Bottom nav: icons replaced by upload slots (stays at device bottom) ===== -->
     <nav class="bottom-nav" aria-label="Bottom navigation" id="bottomNav">
       <button>
         <label class="photo-slot photo-slot--bottom photo-empty" data-slot="nav-home">
@@ -456,12 +454,12 @@
     </nav>
   </div>
 
-  <!-- ===================== SHARE MODAL (ADDED) ===================== -->
+  <!-- ===================== SHARE MODAL (BOTTOM ANCHORED) ===================== -->
   <div class="pnl-modal-backdrop" id="pnlBackdrop" aria-hidden="true">
     <div class="pnl-modal" role="dialog" aria-modal="true" aria-labelledby="pnlTitle">
       <button class="pnl-close" id="pnlClose" title="Close"><i class="fa-solid fa-xmark"></i></button>
 
-      <!-- >>> Light ash scene wrapper (adds side/top/bottom background around the card) -->
+      <!-- Light ash scene wrapper (adds side/top/bottom background around the card) -->
       <div class="pnl-scene">
         <!-- PNL card -->
         <div class="pnl-card" id="pnlCard">
@@ -534,7 +532,7 @@
       </div><!-- /pnl-scene -->
     </div>
   </div>
-  <!-- =================== / SHARE MODAL (ADDED) =================== -->
+  <!-- =================== / SHARE MODAL =================== -->
 
   <script>
     /* ===== Segmented control ===== */
@@ -892,7 +890,7 @@
       ws.onerror=(err)=>{ console.error('[WS] Error', err); try{ ws.close(); }catch{} };
     }
 
-    /* ========= PNL MODAL LOGIC (ADDED) ========= */
+    /* ========= PNL MODAL LOGIC ========= */
     const pnlEls = {
       backdrop: document.getElementById('pnlBackdrop'),
       close: document.getElementById('pnlClose'),
@@ -952,7 +950,7 @@
       pnlEls.entry.textContent = formatPrice(t.sym, t.entry);
       pnlEls.last.textContent  = formatPrice(t.sym, t.mark);
     }
-    /* ======== / PNL MODAL LOGIC (ADDED) ======== */
+    /* ======== / PNL MODAL LOGIC ======== */
 
     (async function init(){
       sizeFeed();
@@ -994,9 +992,5 @@
     document.getElementById("unrealizedValue").textContent = "Loading…";
     document.getElementById("realizedSpan").textContent = "Loading…";
   </script>
-</body>
-</html>
-<!-- partial -->
-  
 </body>
 </html>
