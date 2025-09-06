@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>Untitled</title>
+  
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Futures Assets Mockup — with 6M Trend Profit Cards (Top bars fixed, Frame Removed, +20 trades, random small-loss duo) — Margin Persistent</title>
+
+  <!-- Fonts & Icons -->
+  <link href="https://db.onlinewebfonts.com/c/d05c19ccecf7003d248c60ffd6b5e8f7?family=Binance+PLEX" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+
+  <style>
+    :root{
+      --app-w: 375px;
+      --bg-base:#1E2128;
+      --panel-bg:#1e2127;
+      --secondary-bg:#32383e;
+      --text-secondary:#7c828a;
+      --text-green:#3acf87;
+      --text-red:#e04b4a;
+      --btn-bg:#2f3339;
+      --highlight:#f0b90b;
+
+      /* tiny segmented control sizing */
+      --seg-w: 170px;
+      --seg-h: 24px;
+      --seg-pad: 2px;
+      --seg-gap: 2px;
+      --seg-r: 10px;
+      --seg-thumb-r: 6px;
+      --seg-font: 12px;
+
+      /* keep card gutters logic */
+      --frame-gutter-x: 8px;
+      --card-inset: 2px;
+
+      /* UPDATED: photo slot sizes (smaller) */
+      --slot-top: 16px;     /* balance header small icons */
+      --slot-bottom: 14px;  /* bottom nav icons */
+    }
+
+    *{margin:0;padding:0;box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      background:var(--bg-base);
+      display:flex;justify-content:center;align-items:flex-start;
+      padding:0;min-height:100vh;color:#E1E3E8
+    }
+    .app{
+      width:var(--app-w);max-width:100%;
+      background:var(--bg-base);color:#E1E3E8;
+      border:none;border-radius:0;overflow:visible;position:relative;
+      padding:12px var(--frame-gutter-x) 80px;
+      font-family:"Segoe UI",Roboto,sans-serif
+    }
+    .amount,.value,.rate{font-family:"Binance PLEX",sans-serif!important}
+    button{cursor:pointer;border:none;background:transparent;font:inherit;color:inherit}
+
+    /* ====== TOP BAR STACK (fixed / non-scrolling) ====== */
+    .top-stack{
+      position:sticky; top:0; z-index:30;
+      background:var(--bg-base);
+      border-bottom:none !important;
+      padding-bottom:8px; margin-bottom:8px;
+    }
+
+    /* ===== Exchange / Wallet segmented control (small) ===== */
+    .top-toggle{
+      position:relative;width:var(--seg-w);
+      margin:2px auto 6px;padding:var(--seg-pad);
+      background:#20242c;border:1px solid #343a40;border-radius:var(--seg-r);
+      display:grid;grid-template-columns:1fr 1fr;gap:var(--seg-gap);
+    }
+    .top-toggle .seg-thumb{
+      position:absolute;top:var(--seg-pad);bottom:var(--seg-pad);left:var(--seg-pad);
+      width:calc(50% - var(--seg-gap));
+      background:#2b303a;border:1px solid #3f4652;border-radius:var(--seg-thumb-r);
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.02),0 2px 8px rgba(0,0,0,.35);
+      transition:transform .25s ease;transform:translateX(0%);
+    }
+    .top-toggle .toggle-btn{
+      position:relative;z-index:1;height:var(--seg-h);line-height:var(--seg-h);
+      padding:0 8px;font-size:var(--seg-font);font-weight:700;color:#9ba3af;border-radius:var(--seg-thumb-r);
+      letter-spacing:.2px;
+    }
+    .top-toggle .toggle-btn.active{ color:#fff; }
+
+    /* ===== Upper navs ===== */
+    .main-nav{display:flex;justify-content:flex-start;gap:10px;margin:2px 0 6px 0}
+    .main-nav button{padding:8px 6px;font-size:13px;color:#A1A6B0}
+    .main-nav button.active{color:#FFF;border-bottom:2px solid #FFF}
+    .main-nav button:first-child{ margin-left:-6px; }
+
+    .sub-toggle{display:flex;gap:6px;margin:8px 0 0 0;border-bottom:none !important;box-shadow:none !important;}
+    .sub-toggle .toggle-btn{padding:4px 8px;font-size:11px;color:#A1A6B0;border-radius:6px;background:transparent;}
+    .sub-toggle .toggle-btn::after{ display:none !important; }
+    .sub-toggle .toggle-btn.active{background:#323742;color:#FFF}
+
+    /* ===== Other panels ===== */
+    .balance-panel{margin:12px 0}
+    .balance-header{display:flex;justify-content:space-between;align-items:center;color:#A1A6B0;font-size:12px}
+    .balance-header span{display:flex;align-items:center;gap:10px}
+    .balance-amount{display:flex;align-items:flex-end;margin:8px 0}
+    .amount{font-size:28px;font-weight:600}
+    .currency{margin-left:8px;color:#A1A6B0;font-size:12px}
+    .realized-pnl{color:#A1A6B0;font-size:12px}
+    .realized-pnl .gain{color:var(--text-green);font-weight:700}
+
+    .small-balances{display:flex;margin-top:12px;justify-content:space-between}
+    .small-item{display:flex;flex-direction:column}
+    .small-item .label{color:#A1A6B0;font-size:12px}
+    .small-item .value{font-size:14px;font-weight:600;margin-top:4px}
+
+    .actions{display:flex;margin:14px 0}
+    .btn{flex:1;padding:8px 0;font-size:13px;margin:0 4px;border-radius:6px;background:#323742;color:#A1A6B0}
+    .btn.primary,.btn.active{background:#F3BA2F;color:#1E2128}
+
+    /* ===== Positions/Assets bar ===== */
+    .sub-nav-2{
+      position:sticky; top:12px; z-index:20;
+      display:flex;align-items:flex-end;gap:16px;margin:0 0 8px 0;
+      background:linear-gradient(var(--bg-base), var(--bg-base));
+      padding-top:6px;
+    }
+    .sub-nav-2 button{position:relative;padding:0 6px 8px;font-size:14px;font-weight:700;letter-spacing:.1px;color:var(--text-secondary);line-height:1;font-family:"Binance PLEX","Segoe UI",Roboto,sans-serif}
+    .sub-nav-2 button.active{color:#fff}
+    .sub-nav-2 button.active::after{ display:none !important; }
+
+    /* ===== PROFITS LIST ===== */
+    .feed{
+      overflow-y:auto; overscroll-behavior-y: contain;
+      padding:12px 0 20px; background:var(--bg-base);
+      scrollbar-width:none; border-top:none !important;
+    }
+    .feed::-webkit-scrollbar{display:none}
+
+    .empty-state{margin:0 0;background:var(--panel-bg);border-radius:10px;padding:20px;text-align:center;border:1px solid #2b2f36}
+    .empty-state i{font-size:28px;opacity:.9;margin-bottom:10px;display:inline-block}
+    .empty-state h4{font-size:14px;margin-bottom:6px}
+    .empty-state p{font-size:12px;color:#A1A6B0;margin-bottom:12px}
+    .empty-state .cta{background:#F3BA2F;color:#1E2128;font-size:12px;padding:8px 12px;border-radius:6px;display:inline-flex;align-items:center;gap:6px}
+
+    /* ====== PROFITS CARD ====== */
+    .trade-panel { background: var(--panel-bg); padding: 12px; border-radius: 8px; border: none; box-shadow: none;
+      margin-left:calc(-1 * (var(--frame-gutter-x) - var(--card-inset)));
+      margin-right:calc(-1 * (var(--frame-gutter-x) - var(--card-inset)));
+    }
+    .trade-panel + .trade-panel{margin-top:8px}
+    .trade-panel .header { display: flex; align-items: center; margin-bottom: 8px; }
+    .icon-buy, .icon-sell { color: #fff; width: 20px; height: 20px; display:flex;align-items:center;justify-content:center;
+      font-size: 12px; font-weight: 700; margin-right: 8px; border-radius: 2px; }
+    .icon-buy { background: var(--text-green); }
+    .icon-sell { background: var(--text-red); }
+    .symbol { font-size: 14px; font-weight: 600; margin-right: 6px; color:#fff; }
+    .tag { background: var(--secondary-bg); color: var(--text-secondary); font-size: 10px; padding: 1px 4px; margin-right: 4px; text-transform: uppercase; border-radius: 3px; }
+    .exclamations { display: flex; margin-left: 6px; }
+    .exclamations span { position: relative; width: 2px; height: 10px; background: var(--secondary-bg); margin: 0 1px; border-radius: 1px; transition: background 0.3s ease; }
+    .exclamations span::after { content: ''; position: absolute; bottom: -3px; left: 50%; transform: translateX(-50%); width: 2px; height: 2px; background: inherit; border-radius: 50%; }
+    .exclamations span.green, .exclamations span.green::after { background: var(--text-green); }
+    .share { margin-left: auto; color: var(--text-secondary); font-size: 16px; cursor: pointer; }
+
+    .content-columns { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 8px; gap: 8px; }
+    .column { display: flex; flex-direction: column; }
+    .column.right { text-align: right; }
+    .stat { margin-bottom: 8px; }
+    .label { font-size: 12px; color: var(--text-secondary); border-bottom: 1px dotted var(--text-secondary); padding-bottom: 2px; display: inline-block; }
+    .label.no-line { border-bottom: none; }
+    .value { font-size: 14px; font-weight: 400; color: #fff; transition: all 0.2s ease; }
+    .value.green, .value.percent.green { color: var(--text-green); font-size: 18px; font-weight: 700; }
+    .value.red, .value.percent.red { color: var(--text-red); font-size: 18px; font-weight: 700; }
+    .margin-ratio-value { font-size: 12px !important; }
+
+    .tp-actions{display:flex;justify-content:space-between;gap:8px;margin-top:2px}
+    .tp-btn{flex:1;background:var(--btn-bg);color:#fff;border:none;border-radius:6px;padding:6px 0;font-size:12px;cursor:pointer;transition:background .3s}
+    .tp-btn:hover{background:var(--secondary-bg)}
+
+    /* ===== Bottom nav ===== */
+    .bottom-nav{
+      position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+      width:var(--app-w);background:#2A2F3A;display:flex;padding:8px 0;
+      border-top:1px solid #3a3f49; z-index:40;
+    }
+    .bottom-nav button{flex:1;display:flex;flex-direction:column;align-items:center;font-size:10px;color:#A1A6B0}
+    .bottom-nav button.active{color:#FFF}
+
+    /* ===== NEW: photo slots (no frame) ===== */
+    .photo-slot{
+      width:var(--slot-top); height:var(--slot-top);
+      display:inline-block; position:relative; overflow:hidden; border:none; outline:none;
+      background:transparent; border-radius:4px;
+    }
+    .photo-slot--bottom{ width:var(--slot-bottom); height:var(--slot-bottom); border-radius:3px; }
+    .photo-slot input[type="file"]{
+      position:absolute; inset:0; opacity:0; cursor:pointer;
+    }
+
+    .photo-slot img{
+      width:88%;
+      height:88%;
+      margin:6%;
+      object-fit:cover;
+      display:block;
+      border:none; outline:none; background:transparent;
+      image-rendering:auto;
+    }
+    .photo-slot--bottom img{
+      width:90%;
+      height:90%;
+      margin:5%;
+      object-fit:cover;
+      display:block;
+    }
+
+    .photo-empty::after{
+      content:'';
+      position:absolute; inset:0; background:transparent;
+    }
+
+    /* ===================== PNL SHARE MODAL (ADDED) ===================== */
+    .pnl-modal-backdrop{
+      position:fixed; inset:0; background:rgba(0,0,0,.6);
+      display:none; align-items:center; justify-content:center; z-index:1000;
+      padding:24px;
+    }
+    .pnl-modal-backdrop.open{ display:flex; }
+    .pnl-modal{
+      position:relative; max-width:520px; width:100%;
+      outline:0; border:0; background:transparent;
+    }
+    .pnl-close{
+      position:absolute; top:-12px; right:-12px; width:32px; height:32px; border-radius:50%;
+      background:#111; border:1px solid #2e2e2e; color:#fff; display:flex; align-items:center; justify-content:center;
+      cursor:pointer; z-index:2;
+    }
+
+    /* >>> NEW: light-ash scene around the card (matches uploaded photo) */
+    .pnl-scene{
+      background:#2f343d;           /* light ash */
+      border:1px solid #3a3f49;
+      border-radius:18px;
+      padding:12px 12px 16px;       /* small top space and room below */
+      margin:8px auto 0;            /* little down from top */
+      width:calc(350px + 1.2cm);    /* show left/right ash area outside card */
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      box-shadow:0 8px 20px rgba(0,0,0,.35) inset;
+    }
+
+    /* Namespaced PNL card */
+    .pnl-card {
+      font-family: 'BinancePlex','Inter','Segoe UI',system-ui,-apple-system,sans-serif !important;
+      font-feature-settings:"tnum"1,"lnum"1;
+      letter-spacing:.15px;
+      color:#fff;
+      background:url('https://iili.io/KBlgIse.th.png') no-repeat center/cover;
+      border-radius:16px;
+      width:calc(350px - 1cm);
+      overflow:hidden;
+      box-shadow:0 0 10px rgba(0,0,0,.6);
+      border:2px solid #2e2e2e;
+      position:relative;
+      margin:0 auto;
+    }
+    .pnl-card .card-header { padding:16px; display:flex; align-items:center; gap:12px; margin-bottom:1cm; }
+    .pnl-card .avatar { width:40px; height:40px; border-radius:50%; overflow:hidden; flex:0 0 40px; }
+    .pnl-card .avatar img { width:100%; height:100%; object-fit:cover; }
+    .pnl-card .username { display:flex; flex-direction:column; }
+    .pnl-card .username span:first-child { font-weight:600; font-size:13px; }
+    .pnl-card .username span:last-child { font-size:11px; opacity:.9; }
+
+    .pnl-card .card-body { padding:0 16px 20px 16px; margin-bottom:1cm; }
+    .pnl-card .title { font-size:16px; font-weight:700; text-transform:uppercase; }
+    .pnl-card .position { margin:6px 0 8px; display:inline-flex; align-items:center; gap:10px; font-size:13px; font-weight:600; }
+    .pnl-card .position .side { color:#ff6b6b; }
+    .pnl-card .position .divider { width:1px; height:12px; background:#6a6a6a; display:inline-block; transform:translateY(1px); }
+    .pnl-card .position .lev { color:#b3b3b3; }
+    .pnl-card .pnl { color:#0ecb81; font-size:32px; font-weight:700; margin:8px 0; letter-spacing:-.5px; }
+    .pnl-card .usdt { font-size:16px; margin-left:4px; font-weight:600; color:#fff; }
+    .pnl-card .prices { display:flex; justify-content:space-between; font-size:12px; margin-top:8px; }
+    .pnl-card .prices .label { color:#888; font-size:11px; }
+    .pnl-card .prices .last { transform:translateX(-2.55cm); }
+
+    .pnl-card .card-footer { background:#000; padding:0; display:block; position:relative; }
+    .pnl-card .footer-line { display:block; width:100%; height:1px; background:#444; margin:0; }
+    .pnl-card .footer-content { padding:16px; display:flex; justify-content:space-between; align-items:center; gap:10px; }
+    .pnl-card .footer-left { font-size:12px; display:flex; align-items:center; gap:8px; line-height:1.1; }
+    .pnl-card .footer-left .binance-badge { display:inline-flex; align-items:center; gap:6px; margin-bottom:2px; transform:translateX(-.3cm); }
+    .pnl-card .footer-left .binance-badge img { width:16px; height:16px; }
+    .pnl-card .footer-left .binance-badge .brand { color:#fcd535; font-weight:800; }
+    .pnl-card .futures-ref { transform:translateX(.3cm); }
+
+    .pnl-card .qr { width:60px; height:60px; background:#fff; border-radius:6px; overflow:hidden; }
+    .pnl-card .qr img { width:100%; height:100%; object-fit:cover; }
+
+    /* selector + actions under the card (inside modal only) */
+    .pnl-underbar{
+      margin:14px auto 0; width:calc(350px - 1cm);
+      display:flex; flex-direction:column; align-items:flex-start;
+      font-size:13px;
+    }
+    /* >>> moved ~1.5cm to the right */
+    .pnl-underbar .selector {
+      margin:6px 0 10px;
+      display:flex; justify-content:flex-start; gap:20px; font-size:13px;
+      transform:translateX(calc(-2cm + 1.5cm));
+    }
+    .pnl-underbar .selector label { display:flex; align-items:center; gap:5px; cursor:pointer; }
+    .pnl-underbar .selector input[type="radio"] { accent-color:white; }
+    .pnl-underbar .bottom-bar { display:flex; justify-content:center; gap:10px; margin-top:8px; transform:translateX(-1.2cm); align-self:center; }
+    .pnl-underbar .action {
+      width:45px; height:45px; background:#1b1c22; border:1px solid #2e2f37; border-radius:12px;
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+      cursor:pointer; transition:transform .12s ease, background .12s ease, border-color .12s ease;
+    }
+    .pnl-underbar .action:hover { transform:translateY(-2px); background:#242632; border-color:#3a3b47; }
+    .pnl-underbar .action img { width:18px; height:18px; display:block; }
+    .pnl-underbar .action span { font-size:10px; color:#cfd3dc; }
+    /* =================== / PNL SHARE MODAL (ADDED) =================== */
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- ===== UPPER (NON-SCROLLING) AREA ===== -->
+    <div class="top-stack" id="topStack">
+      <!-- Segmented control -->
+      <header class="top-toggle" aria-label="Exchange or Wallet">
+        <span class="seg-thumb" aria-hidden="true"></span>
+        <button class="toggle-btn active" type="button">Exchange</button>
+        <button class="toggle-btn" type="button">Wallet</button>
+      </header>
+
+      <nav class="main-nav" aria-label="Main sections">
+        <button>Overview</button>
+        <button class="active">Futures</button>
+        <button>Spot</button>
+        <button>Funding</button>
+      </nav>
+
+      <div class="sub-toggle" role="tablist" aria-label="Futures type">
+        <button class="toggle-btn active" role="tab" aria-selected="true">USDⓢ-M</button>
+        <button class="toggle-btn" role="tab" aria-selected="false">COIN-M</button>
+      </div>
+    </div>
+    <!-- ===== /UPPER (fixed) ===== -->
+
+    <!-- ===== Below can scroll as needed ===== -->
+    <section class="balance-panel" aria-label="Balances">
+      <div class="balance-header">
+        <span>Margin Balance <i id="eyeToggle" class="fas fa-eye" aria-hidden="true"></i></span>
+
+        <!-- >>> three photo slots (no frame) -->
+        <span class="icon-group" aria-label="Actions">
+          <label class="photo-slot photo-empty" data-slot="top-reward">
+            <input type="file" accept=".jpg,.jpeg,image/jpeg" capture="environment">
+            <img alt="">
+          </label>
+          <label class="photo-slot photo-empty" data-slot="top-convert">
+            <input type="file" accept=".jpg,.jpeg,image/jpeg" capture="environment">
+            <img alt="">
+          </label>
+          <label class="photo-slot photo-empty" data-slot="top-statement">
+            <input type="file" accept=".jpg,.jpeg,image/jpeg" capture="environment">
+            <img alt="">
+          </label>
+        </span>
+      </div>
+
+      <div class="balance-amount">
+        <span id="amount" class="amount">Loading…</span>
+        <span class="currency">USD <i class="fas fa-chevron-down" aria-hidden="true"></i></span>
+      </div>
+
+      <div class="realized-pnl" id="pnl">
+        Today’s Realized PNL
+        <span id="realizedSpan" class="gain">Loading…</span>
+        <i class="fas fa-chevron-right" aria-hidden="true"></i>
+      </div>
+
+      <div class="small-balances">
+        <div class="small-item">
+          <div class="label">Wallet Balance (USD)</div>
+          <div class="value" id="walletValue">Loading…</div>
+        </div>
+        <div class="small-item">
+          <div class="label">Unrealized PNL (USD)</div>
+          <div class="value" id="unrealizedValue">Loading…</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="actions" aria-label="Quick actions">
+      <button class="btn primary active">Trade</button>
+      <button class="btn">Swap</button>
+      <button class="btn">Transfer</button>
+    </section>
+
+    <section class="positions" aria-label="Positions">
+      <nav class="sub-nav-2" id="stickyBar">
+        <button class="active">Positions</button>
+        <button>Assets</button>
+      </nav>
+
+      <div class="feed" id="feed">
+        <div class="empty-state" id="emptyState">
+          <i class="fa-solid fa-briefcase"></i>
+          <h4>You have no open positions</h4>
+          <p>Start a trade to see it listed here in real-time.</p>
+          <button class="cta"><i class="fa-solid fa-plus"></i> Open a Trade</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Bottom nav: icons replaced by upload slots ===== -->
+    <nav class="bottom-nav" aria-label="Bottom navigation" id="bottomNav">
+      <button>
+        <label class="photo-slot photo-slot--bottom photo-empty" data-slot="nav-home">
+          <input type="file" accept=".jpg,.jpeg,image/jpeg" capture="environment"><img alt="">
+        </label>
+        <span>Home</span>
+      </button>
+      <button>
+        <label class="photo-slot photo-slot--bottom photo-empty" data-slot="nav-markets">
+          <input type="file" accept=".jpg,.jpeg,image/jpeg" capture="environment"><img alt="">
+        </label>
+        <span>Markets</span>
+      </button>
+      <button>
+        <label class="photo-slot photo-slot--bottom photo-empty" data-slot="nav-trade">
+          <input type="file" accept=".jpg,.jpeg,image/jpeg" capture="environment"><img alt="">
+        </label>
+        <span>Trade</span>
+      </button>
+      <button>
+        <label class="photo-slot photo-slot--bottom photo-empty" data-slot="nav-futures">
+          <input type="file" accept=".jpg,.jpeg,image/jpeg" capture="environment"><img alt="">
+        </label>
+        <span>Futures</span>
+      </button>
+      <button class="active">
+        <label class="photo-slot photo-slot--bottom photo-empty" data-slot="nav-assets">
+          <input type="file" accept=".jpg,.jpeg,image/jpeg" capture="environment"><img alt="">
+        </label>
+        <span>Assets</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- ===================== SHARE MODAL (ADDED) ===================== -->
+  <div class="pnl-modal-backdrop" id="pnlBackdrop" aria-hidden="true">
+    <div class="pnl-modal" role="dialog" aria-modal="true" aria-labelledby="pnlTitle">
+      <button class="pnl-close" id="pnlClose" title="Close"><i class="fa-solid fa-xmark"></i></button>
+
+      <!-- >>> Light ash scene wrapper (adds side/top/bottom background around the card) -->
+      <div class="pnl-scene">
+        <!-- PNL card -->
+        <div class="pnl-card" id="pnlCard">
+          <div class="card-header">
+            <div class="avatar">
+              <img src="https://iili.io/KnMWtFs.th.png" alt="User Avatar">
+            </div>
+            <div class="username">
+              <span id="pnlUser">Prasadnuwankumara</span>
+              <span id="pnlTime">—</span>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="title" id="pnlTitle">—</div>
+            <div class="position">
+              <span class="side" id="pnlSide">—</span>
+              <span class="divider" aria-hidden="true"></span>
+              <span class="lev" id="pnlLev">—</span>
+            </div>
+            <div class="pnl"><span id="pnlValue">0.00</span> <span class="usdt">USDT</span></div>
+            <div class="prices">
+              <div class="entry">
+                <div class="label">Entry Price</div>
+                <div id="pnlEntry">—</div>
+              </div>
+              <div class="last">
+                <div class="label">Last Price</div>
+                <div id="pnlLast">—</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-footer">
+            <span class="footer-line"></span>
+            <div class="footer-content">
+              <div class="footer-left">
+                <div>
+                  <div class="binance-badge">
+                    <img src="https://iili.io/KBDmWsn.th.png" alt="Binance logo">
+                    <span class="brand">BINANCE</span>
+                  </div>
+                  <div class="futures-ref">FUTURES</div>
+                  <div class="futures-ref">Referral Code 456516353</div>
+                </div>
+              </div>
+              <div class="qr">
+                <img src="https://iili.io/KnWf8xt.png" alt="QR Code">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Underbar (selector + small actions) -->
+        <div class="pnl-underbar">
+          <div class="selector">
+            <label><input type="radio" name="infoMode" value="PNL" checked> PNL</label>
+            <label><input type="radio" name="infoMode" value="ROI"> ROI</label>
+            <label><input type="radio" name="infoMode" value="BOTH"> PNL & ROI</label>
+          </div>
+
+          <div class="bottom-bar">
+            <div class="action" title="Save"><img src="https://img.icons8.com/ios-glyphs/60/download--v1.png" alt="Save"><span>Save</span></div>
+            <div class="action" title="Copy"><img src="https://img.icons8.com/ios-glyphs/60/link--v1.png" alt="Copy"><span>Copy</span></div>
+            <div class="action" title="Telegram"><img src="https://img.icons8.com/color/60/telegram-app--v1.png" alt="Telegram"><span>Telegram</span></div>
+            <div class="action" title="Instagram"><img src="https://img.icons8.com/color/60/instagram-new--v1.png" alt="Instagram"><span>Instagram</span></div>
+            <div class="action" title="More"><img src="https://img.icons8.com/ios-glyphs/60/more.png" alt="More"><span>More</span></div>
+          </div>
+        </div>
+      </div><!-- /pnl-scene -->
+    </div>
+  </div>
+  <!-- =================== / SHARE MODAL (ADDED) =================== -->
+
+  <script>
+    /* ===== Segmented control ===== */
+    (function(){
+      const wrap = document.querySelector('.app .top-toggle');
+      const btns  = [...wrap.querySelectorAll('.toggle-btn')];
+      const thumb = wrap.querySelector('.seg-thumb');
+      const setActive = (i) => { btns.forEach((b,idx)=> b.classList.toggle('active', idx===i)); thumb.style.transform = `translateX(${i*100}%)`; };
+      setActive(0); btns.forEach((b,i)=> b.addEventListener('click',()=>setActive(i)));
+    })();
+
+    /* ===== Layout sizing ===== */
+    function sizeFeed(){
+      const feed = document.getElementById('feed');
+      const stickyBar = document.getElementById('stickyBar');
+      const bottomNav = document.getElementById('bottomNav');
+      const topStack  = document.getElementById('topStack');
+      if(!feed || !stickyBar || !bottomNav || !topStack) return;
+      const topOffset = Math.ceil(topStack.getBoundingClientRect().height + 8);
+      stickyBar.style.top = topOffset + 'px';
+      const barH = stickyBar.getBoundingClientRect().height || 40;
+      const bottomH = bottomNav.getBoundingClientRect().height || 56;
+      const available = window.innerHeight - (topOffset + barH) - bottomH - 12;
+      feed.style.height = Math.max(120, available) + 'px';
+      feed.style.maxHeight = feed.style.height;
+    }
+    window.addEventListener('resize', sizeFeed);
+    document.addEventListener('DOMContentLoaded', sizeFeed);
+
+    /* ===== Top panel utils ===== */
+    const fmtMoney = (n) =>
+      "$" + Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const fmtPct = (n) => (n >= 0 ? "+" : "") + n.toFixed(2) + "%";
+
+    const amountEl = document.getElementById("amount");
+    const walletEl = document.getElementById("walletValue");
+    const unrealEl = document.getElementById("unrealizedValue");
+    const realizedSpan = document.getElementById("realizedSpan");
+    const eye = document.getElementById("eyeToggle");
+
+    const BAL_MIN = 350000, BAL_MAX = 500000;
+    const REALIZED_MIN_PCT = 0.50, REALIZED_MAX_PCT = 2.00;
+
+    let showTop = true;
+    let marginBalanceTarget = 0;
+    let realizedTodayUSD = 0;
+    let realizedTodayPct = 0;
+    let walletBalance = 0;
+    let unrealizedSum = 0;
+
+    function refreshTop(){
+      amountEl.textContent   = showTop ? fmtMoney(walletBalance + unrealizedSum) : "•••••••";
+      walletEl.textContent   = showTop ? fmtMoney(walletBalance) : "•••••••";
+      unrealEl.textContent   = showTop ? fmtMoney(unrealizedSum) : "•••••••";
+      realizedSpan.textContent = showTop ? `${fmtMoney(realizedTodayUSD)} (${fmtPct(realizedTodayPct)})` : "•••••••";
+    }
+    eye.addEventListener("click", ()=>{ showTop = !showTop; eye.classList.toggle("fa-eye-slash", !showTop); eye.classList.toggle("fa-eye", showTop); refreshTop(); });
+
+    /* ===== Helper fns ===== */
+    const numberWithCommas = (x) => String(x).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    const toFixedSafe = (n, dp) => { const num = Number(n); if (!Number.isFinite(num)) return (0).toFixed(dp); const m = Math.pow(10, dp); return (Math.round(num * m) / m).toFixed(dp); };
+    const dpFromTick = (tickStr) => { const idx = (tickStr || '').indexOf('.'); if (idx === -1) return 0; return tickStr.length - idx - 1; };
+    const quantizeToTick = (price, tickSize) => { const step = parseFloat(tickSize); if (!isFinite(price) || !isFinite(step) || step <= 0) return price; return Math.round(price / step) * step; };
+    const quantizeDownToStep = (qty, stepSize) => { const step = parseFloat(stepSize); if (!isFinite(qty) || !isFinite(step) || step <= 0) return qty; return Math.floor(qty / step) * step; };
+    function joinIntDec(i, d) { const I = numberWithCommas(i); return d !== undefined ? I + '.' + d : I; }
+    function shuffle(arr){ for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j]]; } return arr; }
+
+    /* ====== NEW: photo-slot logic (defaults + persistence) ====== */
+    const SLOT_KEY_PREFIX = 'photo_slot_';
+
+    const DEFAULT_URLS = {
+      'top-reward':   'https://iili.io/K2Mnzqx.jpg',
+      'top-convert':  'https://iili.io/K2MzAdl.jpg',
+      'top-statement':'https://iili.io/K2Mxfou.jpg',
+      'nav-home':    'https://iili.io/K2MQNN1.jpg',
+      'nav-markets': 'https://iili.io/K2VvLLN.th.jpg',
+      'nav-trade':   'https://iili.io/K2V1Opn.th.jpg',
+      'nav-futures': 'https://iili.io/K2VMPYN.th.jpg',
+      'nav-assets':  'https://iili.io/K2VVVwX.th.jpg'
+    };
+
+    function loadSlot(id){ try { return localStorage.getItem(SLOT_KEY_PREFIX + id) || ''; } catch { return ''; } }
+    function saveSlot(id, dataURL){ try { localStorage.setItem(SLOT_KEY_PREFIX + id, dataURL); } catch {} }
+    function initPhotoSlots(){
+      document.querySelectorAll('.photo-slot').forEach(slot=>{
+        const key = slot.dataset.slot;
+        const img = slot.querySelector('img');
+        const input = slot.querySelector('input[type="file"]');
+        const saved = loadSlot(key);
+        if (saved) {
+          img.src = saved;
+          slot.classList.remove('photo-empty');
+        } else if (DEFAULT_URLS[key]) {
+          img.src = DEFAULT_URLS[key];
+          slot.classList.remove('photo-empty');
+        }
+        input.addEventListener('change', (e)=>{
+          const file = e.target.files && e.target.files[0];
+          if(!file) return;
+          const ok = /jpe?g$/i.test(file.name) || file.type === 'image/jpeg';
+          if(!ok){ alert('Please upload a JPG (.jpg or .jpeg)'); e.target.value=''; return; }
+          const reader = new FileReader();
+          reader.onload = () => {
+            img.src = reader.result;
+            slot.classList.remove('photo-empty');
+            saveSlot(key, reader.result);
+          };
+          reader.readAsDataURL(file);
+        });
+      });
+    }
+
+    /* ===== Exchange / calculations / WS / panels ===== */
+    const MARGIN_STORE_KEY = 'futures_mock_saved_margins_v1';
+    const round2 = (x) => Math.round((Number(x)||0) * 100) / 100;
+    function loadSavedMargins(){ try { return JSON.parse(localStorage.getItem(MARGIN_STORE_KEY)) || {}; } catch { return {}; } }
+    function saveMarginForSymbol(sym, used, eff, lev){ const store = loadSavedMargins(); store[sym] = { used: round2(used), eff: round2(eff), lev: Math.max(1, parseInt(lev||10,10)) }; localStorage.setItem(MARGIN_STORE_KEY, JSON.stringify(store)); }
+    function getSavedForSymbol(sym){ const store = loadSavedMargins(); return store[sym]; }
+    window.resetSavedMargins = function(){ localStorage.removeItem(MARGIN_STORE_KEY); location.reload(); };
+
+    const marketMeta = Object.create(null);
+    async function loadExchangeMeta() {
+      const url = 'https://fapi.binance.com/fapi/v1/exchangeInfo';
+      try{
+        const res = await fetch(url);
+        const json = await res.json();
+        if (!json || !Array.isArray(json.symbols)) return;
+        for (const s of json.symbols) {
+          const sym = s.symbol;
+          if (!allSymbols.includes(sym)) continue;
+          let tickSize = '0.01', stepSize = '0.001', minQty = 0;
+          if (Array.isArray(s.filters)) {
+            for (const f of s.filters) {
+              if (f.filterType === 'PRICE_FILTER' && f.tickSize) tickSize = f.tickSize;
+              if ((f.filterType === 'LOT_SIZE' || f.filterType === 'MARKET_LOT_SIZE') && f.stepSize) stepSize = f.stepSize;
+              if ((f.filterType === 'LOT_SIZE' || f.filterType === 'MARKET_LOT_SIZE') && f.minQty) minQty = parseFloat(f.minQty) || 0;
+            }
+          }
+          marketMeta[sym] = { tickSize, stepSize, minQty, priceDp: dpFromTick(tickSize) };
+        }
+      }catch(e){ }
+    }
+    const getMeta = (sym) => marketMeta[sym] || { tickSize: '0.01', stepSize: '0.001', minQty: 0, priceDp: 2 };
+    function formatPrice(sym, x) { const m = getMeta(sym); const q = quantizeToTick(x, m.tickSize); const s = toFixedSafe(q, m.priceDp); const [i, d] = s.split('.'); return joinIntDec(i, d); }
+    function formatProfit(_sym, x) { const s = toFixedSafe(x, 2); const [i, d] = s.split('.'); return joinIntDec(i, d); }
+    function formatTwoDP(x) { const s = toFixedSafe(x, 2); const [i, d] = s.split('.'); return joinIntDec(i, d); }
+
+    const primeSymbols = ['BTCUSDT','ETHUSDT','BNBUSDT','SOLUSDT','XRPUSDT','DOGEUSDT','TONUSDT','ADAUSDT','AVAXUSDT','TRXUSDT','LINKUSDT','DOTUSDT','NEARUSDT','OPUSDT','ARBUSDT','APTUSDT','INJUSDT','RNDRUSDT','SEIUSDT','TIAUSDT','ONDOUSDT'];
+    const seedSymbols = ['BTCUSDT','ETHUSDT','BNBUSDT','ADAUSDT','SOLUSDT','XRPUSDT','DOTUSDT','LTCUSDT','LINKUSDT','DOGEUSDT','AAVEUSDT','SUSHIUSDT','SHIBUSDT','COMPUSDT','ETCUSDT','ZECUSDT','XMRUSDT','LRCUSDT','QNTUSDT','CRVUSDT','UNIUSDT','BCHUSDT','XLMUSDT','ATOMUSDT','MATICUSDT','AVAXUSDT','TRXUSDT','EOSUSDT','NEARUSDT','FILUSDT','OPUSDT','ARBUSDT','APTUSDT','SUIUSDT','INJUSDT','RNDRUSDT','GALAUSDT','THETAUSDT','SANDUSDT','MANAUSDT','AXSUSDT','CFXUSDT','ICPUSDT','LDOUSDT','PEPEUSDT','FLOKIUSDT','WIFUSDT','ARKUSDT','IOTAUSDT','KASUSDT','PYTHUSDT','STRKUSDT','JUPUSDT','APEUSDT','BLURUSDT','SEIUSDT','TIAUSDT','TONUSDT','ONDOUSDT'];
+    const allSymbols = Array.from(new Set([...primeSymbols, ...seedSymbols]));
+
+    const maintenanceMarginRates = { BTCUSDT:0.004, ETHUSDT:0.005, BNBUSDT:0.005, ADAUSDT:0.010, SOLUSDT:0.008, XRPUSDT:0.010, DOTUSDT:0.010, LTCUSDT:0.010, LINKUSDT:0.010, DOGEUSDT:0.012, AAVEUSDT:0.010, SUSHIUSDT:0.015, SHIBUSDT:0.020, COMPUSDT:0.010, ETCUSDT:0.010, ZECUSDT:0.015, XMRUSDT:0.020, LRCUSDT:0.020, QNTUSDT:0.015, CRVUSDT:0.020, UNIUSDT:0.010, BCHUSDT:0.010, XLMUSDT:0.015, ATOMUSDT:0.010, MATICUSDT:0.010, AVAXUSDT:0.010, TRXUSDT:0.020, EOSUSDT:0.015, NEARUSDT:0.020, FILUSDT:0.015, OPUSDT:0.015, ARBUSDT:0.020, APTUSDT:0.015, SUIUSDT:0.020, INJUSDT:0.015, RNDRUSDT:0.015, GALAUSDT:0.025, THETAUSDT:0.020, SANDUSDT:0.020, MANAUSDT:0.020, AXSUSDT:0.020, CFXUSDT:0.025, ICPUSDT:0.015, LDOUSDT:0.020, PEPEUSDT:0.030, FLOKIUSDT:0.030, WIFUSDT:0.030, ARKUSDT:0.020, IOTAUSDT:0.020, KASUSDT:0.025, PYTHUSDT:0.020, STRKUSDT:0.020, JUPUSDT:0.020, APEUSDT:0.020, BLURUSDT:0.020, SEIUSDT:0.020, TIAUSDT:0.020, TONUSDT:0.015, ONDOUSDT:0.020 };
+    const getMaintRate = (sym) => maintenanceMarginRates[sym] ?? 0.01;
+
+    const qtyFrom = (marginUsed, leverage, entry) => (leverage * marginUsed) / entry;
+    const upnlLong  = (mark, entry, qty) => (mark - entry) * qty;
+    const upnlShort = (mark, entry, qty) => (entry - mark) * qty;
+    const roiPct = (pnl, usedMargin) => (pnl / usedMargin) * 100;
+    const maintenance = (mmr, mark, qty) => mmr * mark * qty;
+    const marginBalanceCalc = (effectiveMargin, uPnL) => effectiveMargin + uPnL;
+
+    function liqPriceLong(entry, leverage, mmr, marginUsed, effectiveMargin) {
+      const Q = (leverage * marginUsed) / entry;
+      const denom = Q * (1 - mmr);
+      const num = Q * entry - effectiveMargin;
+      if (denom <= 0) return null; const P = num / denom;
+      if (!isFinite(P) || P <= 0) return null; return P;
+    }
+    function liqPriceShort(entry, leverage, mmr, marginUsed, effectiveMargin) {
+      const Q = (leverage * marginUsed) / entry;
+      const denom = Q * (1 + mmr);
+      const num = effectiveMargin + Q * entry;
+      if (denom <= 0) return null; const P = num / denom;
+      if (!isFinite(P) || P <= 0) return null; return P;
+    }
+    const marginRatioPct = (maint, mBal) => { const mb = Number(mBal); if (!isFinite(mb) || mb <= 0) return 100; const r = (maint / mb) * 100; return Math.max(0, Math.min(9999, r)); };
+
+    const feedDiv = document.getElementById('feed');
+    function meterBars(){ const totalBars = 4; const greenBars = Math.floor(Math.random() * totalBars) + 1; let html=''; for(let j=0;j<totalBars;j++) html += `<span class="${j<greenBars?'green':''}"></span>`; return html; }
+
+    function createPanel({ sym, leverage, entry, mark, usedMargin, effMargin, mmr, qty, side }) {
+      const pnl = side === 'LONG' ? upnlLong(mark, entry, qty) : upnlShort(mark, entry, qty);
+      const roi = roiPct(pnl, usedMargin);
+      const maint = maintenance(mmr, mark, qty);
+      const mBal = marginBalanceCalc(effMargin, pnl);
+      const mRatio = marginRatioPct(maint, mBal);
+      const liq = side === 'LONG' ? liqPriceLong(entry, leverage, mmr, usedMargin, effMargin) : liqPriceShort(entry, leverage, mmr, usedMargin, effMargin);
+      const sideIcon = side === 'LONG' ? '<span class="icon-buy">B</span>' : '<span class="icon-sell">S</span>';
+      const sizeUSDT = mark * qty;
+      const panel = document.createElement('div');
+      panel.className = 'trade-panel';
+      panel.innerHTML = `
+        <div class="header">
+          ${sideIcon}
+          <span class="symbol">${sym}</span>
+          <span class="tag">PERP</span>
+          <span class="tag">Cross ${leverage}×</span>
+          <span class="exclamations">${meterBars()}</span>
+          <i class="fas fa-share-nodes share" title="Share PNL"></i>
+        </div>
+        <div class="content-columns">
+          <div class="column">
+            <div class="stat">
+              <div class="label">PNL (USDT)</div>
+              <div class="value pnl ${pnl < 0 ? 'red' : 'green'}">${formatProfit(sym, pnl)}</div>
+            </div>
+            <div class="stat">
+              <div class="label">Size (USDT)</div>
+              <div class="value size">${formatTwoDP(sizeUSDT)}</div>
+            </div>
+            <div class="stat">
+              <div class="label">Entry Price (USDT)</div>
+              <div class="value entry">${formatPrice(sym, entry)}</div>
+            </div>
+          </div>
+          <div class="column center">
+            <div class="stat">
+              <div class="label no-line">Margin (USDT)</div>
+              <div class="value margin">${formatTwoDP(usedMargin)}</div>
+            </div>
+            <div class="stat">
+              <div class="label no-line">Mark Price (USDT)</div>
+              <div class="value mark">${formatPrice(sym, mark)}</div>
+            </div>
+          </div>
+          <div class="column right">
+            <div class="stat">
+              <div class="label">ROI</div>
+              <div class="value percent roi ${roi < 0 ? 'red' : 'green'}">${(roi >= 0 ? '+' : '') + toFixedSafe(roi, 2)}%</div>
+            </div>
+            <div class="stat margin-ratio">
+              <div class="label">Margin Ratio</div>
+              <div class="value percent margin-ratio-value ${mRatio >= 80 ? 'red' : 'green'}">${toFixedSafe(mRatio, 2)}%</div>
+            </div>
+            <div class="stat">
+              <div class="label no-line">Liq. Price (USDT)</div>
+              <div class="value liq">${liq === null ? '—' : formatPrice(sym, liq)}</div>
+            </div>
+          </div>
+        </div>
+        <div class="tp-actions">
+          <button class="tp-btn">Leverage</button>
+          <button class="tp-btn">TP/SL</button>
+          <button class="tp-btn">Close</button>
+          <button class="tp-btn">Reverse</button>
+        </div>`;
+      const panelState = { node: panel, sym, leverage, mmr, entry, usedMargin, effMargin, qty, mark, side, lockLoss:false };
+      panel.querySelector('.share').addEventListener('click', ()=> openPNLModal(panelState));
+      return panelState;
+    }
+
+    function renderTrade(t) {
+      const pnl = (t.side === 'LONG') ? upnlLong(t.mark, t.entry, t.qty) : upnlShort(t.mark, t.entry, t.qty);
+      const roi = roiPct(pnl, t.usedMargin);
+      const maintV = maintenance(t.mmr, t.mark, t.qty);
+      const mBal = marginBalanceCalc(t.effMargin, pnl);
+      const mRatio = marginRatioPct(maintV, mBal);
+      const liq = (t.side === 'LONG') ? liqPriceLong(t.entry, t.leverage, t.mmr, t.usedMargin, t.effMargin) : liqPriceShort(t.entry, t.leverage, t.mmr, t.usedMargin, t.effMargin);
+      const pnlEl = t.node.querySelector('.value.pnl'); pnlEl.textContent = formatProfit(t.sym, pnl); pnlEl.classList.toggle('green', pnl >= 0); pnlEl.classList.toggle('red', pnl < 0);
+      t.node.querySelector('.value.mark').textContent = formatPrice(t.sym, t.mark);
+      const sizeEl = t.node.querySelector('.value.size'); sizeEl.textContent = formatTwoDP(t.mark * t.qty);
+      const roiEl = t.node.querySelector('.value.roi'); roiEl.textContent = (roi >= 0 ? '+' : '') + toFixedSafe(roi, 2) + '%'; roiEl.classList.toggle('green', roi >= 0); roiEl.classList.toggle('red', roi < 0);
+      const mrEl = t.node.querySelector('.value.margin-ratio-value'); mrEl.textContent = toFixedSafe(mRatio, 2) + '%'; mrEl.classList.toggle('green', mRatio < 80); mrEl.classList.toggle('red', mRatio >= 80);
+      const liqEl = t.node.querySelector('.value.liq'); liqEl.textContent = (liq === null) ? '—' : formatPrice(t.sym, liq);
+
+      if (currentSharedTrade === t) updatePNLCardFromTrade(t);
+    }
+
+    function sixMonthsAgoMs(){ const d=new Date(); d.setMonth(d.getMonth()-6); d.setHours(0,0,0,0); return d.getTime(); }
+    async function fetchSixMonthMarkClose(sym, startMs){
+      try{ const url1=`https://fapi.binance.com/fapi/v1/markPriceKlines?symbol=${sym}&interval=1d&startTime=${startMs-2*24*3600*1000}&limit=2`;
+        const res1=await fetch(url1); if(res1.ok){ const data=await res1.json(); if(Array.isArray(data)&&data.length>0){ const k=data[0]; const close=parseFloat(k[4]); if(isFinite(close)) return close; } } }catch{}
+      try{ const url2=`https://fapi.binance.com/fapi/v1/continuousKlines?pair=${sym}&contractType=PERPETUAL&interval=1d&startTime=${startMs-2*24*3600*1000}&limit=2`;
+        const res2=await fetch(url2); if(res2.ok){ const data=await res2.json(); if(Array.isArray(data)&&data.length>0){ const k=data[0]; const close=parseFloat(k[4]); if(isFinite(close)) return close; } } }catch{}
+      try{ const url3=`https://fapi.binance.com/fapi/v1/klines?symbol=${sym}&interval=1d&startTime=${startMs-2*24*3600*1000}&limit=2`;
+        const res3=await fetch(url3); if(res3.ok){ const data=await res3.json(); if(Array.isArray(data)&&data.length>0){ const k=data[0]; const close=parseFloat(k[4]); if(isFinite(close)) return close; } } }catch{}
+      return null;
+    }
+    async function loadSixMonthEntryMap(symbolList){
+      const start=sixMonthsAgoMs(); const entryMap=Object.create(null); const unique=[...new Set(symbolList)]; const batch=8;
+      for(let i=0;i<unique.length;i+=batch){ const chunk=unique.slice(i,i+batch);
+        await Promise.all(chunk.map(async (sym)=>{ const close=await fetchSixMonthMarkClose(sym,start); if(isFinite(close)) entryMap[sym]=close; })); }
+      return entryMap;
+    }
+
+    const trades=[]; let symbols=shuffle(allSymbols.slice()); const tradeCount=60;
+    function shuffleFeed(){ const nodes=Array.from(feedDiv.children); nodes.filter(n=>n.id!=='emptyState').forEach(n=>feedDiv.appendChild(n)); }
+
+    async function seedWithFuturesMark6M(){
+      const empty=document.getElementById("emptyState"); if(empty) empty.remove();
+      await loadExchangeMeta(); symbols = symbols.filter(s=>!!marketMeta[s]);
+      const res=await fetch('https://fapi.binance.com/fapi/v1/premiumIndex'); const arr=await res.json();
+      const markMap=Object.create(null); arr.forEach(o=>{ if(o&&o.symbol) markMap[o.symbol]=parseFloat(o.markPrice); });
+      const poolForEntry=Array.from(new Set([...primeSymbols, ...symbols.slice(0, tradeCount*2)]));
+      const entryMap=await loadSixMonthEntryMap(poolForEntry);
+      const MARGIN_MIN=50, MARGIN_MAX=300;
+      const mainList=primeSymbols.filter(s=>marketMeta[s]&&isFinite(markMap[s])&&isFinite(entryMap[s]));
+      const otherList=symbols.filter(s=>!primeSymbols.includes(s)&&marketMeta[s]&&isFinite(markMap[s])&&isFinite(entryMap[s]));
+      const planned=[...mainList, ...otherList].slice(0, tradeCount);
+      for(let i=0;i<planned.length;i++){
+        const sym=planned[i]; const liveMark=markMap[sym]; if(!isFinite(liveMark)) continue;
+        const sixMEntryRaw=entryMap[sym]; if(!isFinite(sixMEntryRaw)) continue;
+        const saved=getSavedForSymbol(sym);
+        let leverage=saved?.lev ?? [10,20,50,100][Math.floor(Math.random()*4)];
+        const entry=quantizeToTick(sixMEntryRaw, getMeta(sym).tickSize);
+        const side=(liveMark >= entry) ? 'LONG' : 'SHORT';
+        let usedMargin=saved?.used ?? (MARGIN_MIN + Math.random()*(MARGIN_MAX - MARGIN_MIN));
+        const m=getMeta(sym);
+        let qtyRaw=qtyFrom(usedMargin, leverage, entry);
+        let qty=quantizeDownToStep(qtyRaw, m.stepSize);
+        if(qty < m.minQty) qty = m.minQty;
+        let effMargin = saved?.eff ?? (usedMargin * (1.5 + Math.random() * 2.5));
+        saveMarginForSymbol(sym, usedMargin, effMargin, leverage);
+        const panelState = createPanel({ sym, leverage, entry, mark: liveMark, usedMargin, effMargin, mmr: getMaintRate(sym), qty, side });
+        trades.push(panelState); feedDiv.appendChild(panelState.node);
+      }
+      shuffleFeed(); sizeFeed();
+    }
+
+    function recalcAccountTop(){
+      let sum=0;
+      for(const t of trades){
+        const pnl=(t.side==='LONG') ? upnlLong(t.mark, t.entry, t.qty) : upnlShort(t.mark, t.entry, t.qty);
+        sum += pnl;
+      }
+      unrealizedSum = sum; refreshTop();
+    }
+
+    function forceTwoSmallLossesRandom(){
+      if (trades.length < 2) return;
+      const chosen=new Set();
+      while(chosen.size<2){ const r=Math.floor(Math.random() * trades.length); chosen.add(r); }
+      chosen.forEach((idx)=>{ const t=trades[idx]; const lossUSD=1 + Math.random()*5; const m=getMeta(t.sym);
+        let newMark=(t.side==='LONG') ? t.entry - (lossUSD / t.qty) : t.entry + (lossUSD / t.qty);
+        newMark=quantizeToTick(newMark, m.tickSize); t.mark=newMark; t.lockLoss=true; renderTrade(t); });
+      recalcAccountTop();
+    }
+
+    function connectFuturesMarkWS(){
+      const WS_URL='wss://fstream.binance.com/ws/!markPrice@arr';
+      let ws=new WebSocket(WS_URL);
+      ws.onopen=()=>console.log('[WS] Connected');
+      ws.onmessage=(evt)=>{
+        let data; try{ data=JSON.parse(evt.data);}catch{return;}
+        if(!Array.isArray(data)) return;
+        let touched=false;
+        for(const o of data){
+          const sym=o.s; const priceStr=o.p; if(!sym || priceStr===undefined) continue;
+          const mp=parseFloat(priceStr); if(!isFinite(mp)) continue;
+          for(const t of trades){ if(t.sym===sym){ if(t.lockLoss) continue; t.mark=mp; renderTrade(t); touched=true; } }
+        }
+        if(touched) recalcAccountTop();
+      };
+      ws.onclose=()=>{ console.warn('[WS] Closed. Reconnecting in 2s…'); setTimeout(connectFuturesMarkWS, 2000); };
+      ws.onerror=(err)=>{ console.error('[WS] Error', err); try{ ws.close(); }catch{} };
+    }
+
+    /* ========= PNL MODAL LOGIC (ADDED) ========= */
+    const pnlEls = {
+      backdrop: document.getElementById('pnlBackdrop'),
+      close: document.getElementById('pnlClose'),
+      title: document.getElementById('pnlTitle'),
+      side: document.getElementById('pnlSide'),
+      lev: document.getElementById('pnlLev'),
+      pnl: document.getElementById('pnlValue'),
+      entry: document.getElementById('pnlEntry'),
+      last: document.getElementById('pnlLast'),
+      time: document.getElementById('pnlTime'),
+      user: document.getElementById('pnlUser')
+    };
+    let currentSharedTrade = null;
+    const usernameStatic = 'Prasadnuwankumara';
+
+    function nowStamp(){
+      const d=new Date();
+      const pad=(n)=>String(n).padStart(2,'0');
+      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    }
+
+    function openPNLModal(trade){
+      currentSharedTrade = trade;
+      pnlEls.user.textContent = usernameStatic;
+      pnlEls.time.textContent = nowStamp();
+      updatePNLCardFromTrade(trade);
+      pnlEls.backdrop.classList.add('open');
+      pnlEls.backdrop.setAttribute('aria-hidden','false');
+    }
+    function closePNLModal(){
+      pnlEls.backdrop.classList.remove('open');
+      pnlEls.backdrop.setAttribute('aria-hidden','true');
+      currentSharedTrade = null;
+    }
+    pnlEls.close.addEventListener('click', closePNLModal);
+    pnlEls.backdrop.addEventListener('click', (e)=>{ if(e.target === pnlEls.backdrop) closePNLModal(); });
+
+    document.querySelectorAll('input[name="infoMode"]').forEach(r=>{
+      r.addEventListener('change', ()=>{ if(currentSharedTrade) updatePNLCardFromTrade(currentSharedTrade); });
+    });
+
+    function updatePNLCardFromTrade(t){
+      if(!t) return;
+      const pnl = (t.side === 'LONG') ? upnlLong(t.mark, t.entry, t.qty) : upnlShort(t.mark, t.entry, t.qty);
+      const roi = roiPct(pnl, t.usedMargin);
+      const sideTxt = (t.side === 'LONG') ? 'Long' : 'Short';
+      pnlEls.title.textContent = `${t.sym} Perpetual`;
+      pnlEls.side.textContent = sideTxt;
+      pnlEls.side.style.color = (t.side === 'LONG') ? '#0ecb81' : '#ff6b6b';
+      pnlEls.lev.textContent = `${t.leverage}x`;
+      const mode = (document.querySelector('input[name="infoMode"]:checked')||{}).value || 'PNL';
+      let pnlText = formatProfit(t.sym, pnl);
+      if(mode === 'ROI') pnlText = (roi>=0?'+':'') + toFixedSafe(roi,2) + '%';
+      if(mode === 'BOTH') pnlText = `${formatProfit(t.sym, pnl)}  (${(roi>=0?'+':'')+toFixedSafe(roi,2)}%)`;
+      pnlEls.pnl.textContent = pnlText;
+      pnlEls.pnl.parentElement.style.color = (pnl >= 0) ? '#0ecb81' : '#e04b4a';
+      pnlEls.entry.textContent = formatPrice(t.sym, t.entry);
+      pnlEls.last.textContent  = formatPrice(t.sym, t.mark);
+    }
+    /* ======== / PNL MODAL LOGIC (ADDED) ======== */
+
+    (async function init(){
+      sizeFeed();
+      const BAL_MIN = 350000, BAL_MAX = 500000;
+      const REALIZED_MIN_PCT = 0.50, REALIZED_MAX_PCT = 2.00;
+
+      let marginBalanceTarget = Math.round(((BAL_MIN + Math.random()*(BAL_MAX - BAL_MIN)) + Number.EPSILON) * 100) / 100;
+      let realizedTodayPct = REALIZED_MIN_PCT + Math.random()*(REALIZED_MAX_PCT - REALIZED_MIN_PCT);
+      let realizedTodayUSD = marginBalanceTarget * (realizedTodayPct/100);
+
+      initPhotoSlots();
+
+      await seedWithFuturesMark6M();
+      forceTwoSmallLossesRandom();
+
+      let initialUnreal = 0;
+      for (const t of trades) { initialUnreal += (t.side === 'LONG') ? upnlLong(t.mark, t.entry, t.qty) : upnlShort(t.mark, t.entry, t.qty); }
+      unrealizedSum = initialUnreal;
+      walletBalance = marginBalanceTarget - unrealizedSum;
+
+      const amountEl = document.getElementById("amount");
+      const walletEl = document.getElementById("walletValue");
+      const unrealEl = document.getElementById("unrealizedValue");
+      const realizedSpan = document.getElementById("realizedSpan");
+
+      const fmtMoney = (n) => "$" + Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const fmtPct = (n) => (n >= 0 ? "+" : "") + n.toFixed(2) + "%";
+
+      amountEl.textContent   = fmtMoney(walletBalance + unrealizedSum);
+      walletEl.textContent   = fmtMoney(walletBalance);
+      unrealEl.textContent   = fmtMoney(unrealizedSum);
+      realizedSpan.textContent = `${fmtMoney(realizedTodayUSD)} (${fmtPct(realizedTodayPct)})`;
+
+      connectFuturesMarkWS();
+    })();
+
+    document.getElementById("amount").textContent = "Loading…";
+    document.getElementById("walletValue").textContent = "Loading…";
+    document.getElementById("unrealizedValue").textContent = "Loading…";
+    document.getElementById("realizedSpan").textContent = "Loading…";
+  </script>
+</body>
+</html>
+<!-- partial -->
+  
+</body>
+</html>
