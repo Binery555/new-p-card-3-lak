@@ -8,6 +8,8 @@
   <!-- Fonts & Icons -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <!-- Binance PLEX for better '1' glyph -->
+  <link href="https://db.onlinewebfonts.com/c/d05c19ccecf7003d248c60ffd6b5e8f7?family=Binance+PLEX" rel="stylesheet"/>
 
   <!-- html2canvas for saving only the PNL card -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
@@ -284,7 +286,7 @@
     .pnl-card .footer-left .binance-badge { display:inline-flex; align-items:center; gap:6px; margin-bottom:2px; transform:translateX(-.3cm); }
     .pnl-card .footer-left .binance-badge img { width:16px; height:16px; }
     .pnl-card .footer-left .binance-badge .brand { color:#fcd535; font-weight:800; }
-    .pnl-card .futures-ref { transform:translateX(.3cm); }
+    .pnl-card .footer-left .futures-ref { transform:translateX(.3cm); }
 
     .pnl-card .qr { width:60px; height:60px; background:#fff; border-radius:6px; overflow:hidden; }
     .pnl-card .qr img { width:100%; height:100%; object-fit:cover; }
@@ -311,6 +313,16 @@
     .pnl-underbar .action:hover { transform:translateY(-2px); background:#242632; border-color:#3a3b47; }
     .pnl-underbar .action img { width:18px; height:18px; display:block; }
     .pnl-underbar .action span { font-size:10px; color:#cfd3dc; }
+
+    /* ======= SPECIAL: style for digit '1' inside pnl-card ======= */
+    .pnl-card .one-glyph{
+      font-family: "Binance PLEX", Inter, "Segoe UI", system-ui, -apple-system, sans-serif !important;
+      font-weight: 700;
+      display:inline-block;
+      letter-spacing: 0;
+      transform: translateY(0.2px);
+    }
+    .no-one-stylize .one-glyph{ font-family: inherit !important; font-weight: inherit !important; }
     /* =================== / PNL SHARE MODAL =================== */
   </style>
 </head>
@@ -580,7 +592,7 @@
     const quantizeToTick = (price, tickSize) => { const step = parseFloat(tickSize); if (!isFinite(price) || !isFinite(step) || step <= 0) return price; return Math.round(price / step) * step; };
     const quantizeDownToStep = (qty, stepSize) => { const step = parseFloat(stepSize); if (!isFinite(qty) || !isFinite(step) || step <= 0) return qty; return Math.floor(qty / step) * step; };
     function joinIntDec(i, d) { const I = numberWithCommas(i); return d !== undefined ? I + '.' + d : I; }
-    function shuffle(arr){ for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j]]; } return arr; }
+    function shuffle(arr){ for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
     const randInt = (min, max) => Math.floor(Math.random()*(max-min+1))+min;
 
     /* ====== photo-slot logic ====== */
@@ -638,7 +650,7 @@
         if (!json || !Array.isArray(json.symbols)) return;
         for (const s of json.symbols) {
           const sym = s.symbol;
-          if (!allSymbols.includes(sym)) continue;
+          if (allSymbols.indexOf(sym) === -1) continue;
           let tickSize = '0.01', stepSize = '0.001', minQty = 0;
           if (Array.isArray(s.filters)) {
             for (const f of s.filters) {
@@ -999,5 +1011,62 @@
     document.getElementById("unrealizedValue").textContent = "Loading…";
     document.getElementById("realizedSpan").textContent = "Loading…";
   </script>
+
+  <!-- ========= ONE-GLYPH PATCH (make all digit '1' inside pnl-card use Binance PLEX) ========= -->
+  <script>
+    (function(){
+      const pnlCard = document.getElementById('pnlCard');
+      if(!pnlCard) return;
+
+      function wrapOnes(root){
+        const walker = document.createTreeWalker(
+          root,
+          NodeFilter.SHOW_TEXT,
+          {
+            acceptNode: (node) => {
+              if (!node.nodeValue || node.nodeValue.indexOf('1') === -1) return NodeFilter.FILTER_REJECT;
+              const p = node.parentNode;
+              // ignore if parent is a script/style or already inside our span
+              if (!p || p.classList && p.classList.contains('one-glyph')) return NodeFilter.FILTER_REJECT;
+              if (p.closest && p.closest('.no-one-stylize')) return NodeFilter.FILTER_REJECT;
+              return NodeFilter.FILTER_ACCEPT;
+            }
+          }
+        );
+        const nodes = [];
+        while (walker.nextNode()) nodes.push(walker.currentNode);
+
+        nodes.forEach(node => {
+          const txt = node.nodeValue;
+          if (!txt || txt.indexOf('1') === -1) return;
+          const frag = document.createDocumentFragment();
+          for (let i=0;i<txt.length;i++){
+            const ch = txt[i];
+            if (ch === '1'){
+              const span = document.createElement('span');
+              span.className = 'one-glyph';
+              span.textContent = '1';
+              frag.appendChild(span);
+            } else {
+              frag.appendChild(document.createTextNode(ch));
+            }
+          }
+          node.parentNode.replaceChild(frag, node);
+        });
+      }
+
+      // First pass
+      wrapOnes(pnlCard);
+
+      // Observe and re-apply after dynamic updates
+      let timer = null;
+      const mo = new MutationObserver(() => {
+        if (timer) cancelAnimationFrame(timer);
+        timer = requestAnimationFrame(()=> wrapOnes(pnlCard));
+      });
+      mo.observe(pnlCard, {subtree:true, childList:true, characterData:true});
+    })();
+  </script>
+  <!-- ======== / ONE-GLYPH PATCH ======== -->
 </body>
 </html>
